@@ -1,0 +1,696 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>A-Game Launcher – HTML Games + Offline Saver</title>
+  <link href="https://fonts.googleapis.com/css?family=Comfortaa:700,400&display=swap" rel="stylesheet">
+  <style>
+    /* ======= Base styles and resets ======= */
+    *, *:before, *:after {box-sizing:border-box;}
+    html {
+      min-height: 100vh;
+      background: linear-gradient(120deg, #0d1647 0%, #1a293a 35%, #242964 68%, #4f8db1 96%);
+      font-family: 'Comfortaa', sans-serif;
+      scroll-behavior: smooth;
+      color: #e3ecfc;
+      /* custom scrollbars */
+      scrollbar-color:#3b88cb #1b2747;
+      scrollbar-width: thin;
+    }
+    body {
+      min-height: 100vh;
+      background: transparent;
+      margin:0;
+      padding:0 0 82px 0;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      /* animated bokeh particles using :before (pretty effect) */
+      position:relative;
+      z-index:1;
+    }
+    body:before {
+      content:'';
+      display:block;
+      position:fixed;
+      inset:0;
+      z-index:0;
+      pointer-events:none;
+      opacity:.67;
+      background:
+        radial-gradient(circle at 20% 40%, #155aac33 0 25vw, transparent 40vw),
+        radial-gradient(circle at 80% 70%, #27c4ff18 0 31vw, transparent 56vw),
+        radial-gradient(circle at 60% 20%, #2baaff24 0 19vw, transparent 26vw),
+        radial-gradient(circle at 18% 76%, #08fff8a8 0 9vw, transparent 44vw);
+      animation:bgPulse 18s linear infinite alternate;
+    }
+    @keyframes bgPulse {
+      0% { opacity:0.70;}
+      40% { opacity:0.91;}
+      100% {opacity:0.81;}
+    }
+    /* ==== HEADER ==== */
+    header {
+      margin:2.2rem auto 0.7rem auto;
+      background: linear-gradient(110deg, #27297b 32%, #5385b7 120%);
+      box-shadow: 0 0 22px #225e9240;
+      border-radius:26px;
+      padding:2.2rem 1.7rem 1.1rem 2.7rem;
+      max-width:650px;
+      width:calc(100vw - 64px);
+      position:relative;
+      text-align:left;
+      z-index:1;
+      transition:box-shadow 0.33s;
+      user-select: none;
+    }
+    header h1 {
+      font-size:2.45rem;
+      color:#f2fcff;
+      text-shadow: 0 2px 16px #09307266, 0 1px 0 #fff2;
+      margin-bottom:.25rem;
+    }
+    header p {
+      font-size: 1.18rem;
+      line-height: 1.4;
+      color: #d2eef7;
+      max-width: 650px;
+    }
+    .header-decoration {
+      margin:0; width:100%; height:30px;
+      display:block; pointer-events:none;
+      position:relative; z-index:4;
+    }
+    /* ==== MAIN LAUNCHER CARD ==== */
+    .card {
+      background: linear-gradient(124deg, #232a59 70%, #28427b 160%);
+      box-shadow: 0 7px 38px #2740899e, 0 1.8px 15px #02d9fa16;
+      border-radius:22px;
+      width:95vw; max-width:430px;
+      margin:0 auto 2.6rem auto; padding:2.5rem 2.2rem 1.8rem 2.2rem;
+      position:relative;z-index:5;
+      display:flex; flex-direction:column;align-items:center;
+      transition:box-shadow .3s;
+    }
+    label {
+      font-size:1.18em; color:#e5f9fd; font-weight:700;
+      margin-bottom:.6em; display:block;
+      letter-spacing:.02em;
+      text-shadow:0 1.5px 12px #20296660;
+    }
+    .input-wrap {
+      position:relative;width:100%;margin-bottom:1em;
+    }
+    .input-wrap .icon {
+      position:absolute;left:17px;top:50%;transform:translateY(-50%);
+      font-size:1.2em; color:#7dc4e0b6;
+      pointer-events:none;
+      z-index:2;
+    }
+    input[type="url"], input[type="text"] {
+      font-family: 'Comfortaa',sans-serif; font-size:1.09em;
+      width:100%;border:none;
+      border-radius:17px;
+      background:linear-gradient(105deg,#24355f 66%,#4789ce 180%);
+      box-shadow: 0 1.2px 11px #1bbebd17;
+      color:#f6ffff;
+      padding:1em 1.4em 1em 2.95em;
+      margin-bottom:0.25em;
+      outline:none;transition:.21s;
+      font-weight:500; letter-spacing:.03em; caret-color:#5afff8;
+    }
+    input:focus {
+      background:linear-gradient(114deg,#285087 62%, #76dced 190%);
+      box-shadow: 0 0px 0.6em #64ecfa35;
+      color:#ffffff;
+    }
+    .button-row{
+      width:100%;display:flex;flex-wrap:wrap;gap:0.8em 1.2em;justify-content:center;
+    }
+    .btn {
+      display:inline-block;background:linear-gradient(90deg,#388ee1 2%,#19badf 78%,#63e6d1 123%);
+      font-family:inherit;font-weight:700;font-size:1.15em;
+      padding:0.65em 2.6em;border-radius:13px;
+      border:none;cursor:pointer;outline:none;
+      color:#153248;text-shadow:0 0 9px #bdfbeaa8;
+      box-shadow:0 2px 13px #1dead244,0 1.3px 7px #02dcf378;
+      margin:0.4em 0 0.6em 0;
+      transition:filter 0.17s, box-shadow 0.19s, background 0.18s;
+      position:relative;z-index:7;
+    }
+    .btn:hover, .btn.active { background:linear-gradient(93deg,#1ce9d7 6%,#77eefe 98%);color:#1c487d;filter:brightness(1.09);}
+    /* status/toast area */
+    #status, .toast {
+      display:block;text-align:center;
+      font-size:1.09em; min-height:2em; margin:0.2em auto 0.7em auto;
+      color:#d6e7ff; transition:.26s;
+      letter-spacing:.007em;text-shadow:0 2px 9px #3cfdea16;
+    }
+    #status.error, .toast.error { color:#f199b5; text-shadow:0 5px 8px #df346e5b; }
+    #status.success, .toast.success { color:#05ffc0; text-shadow:0 3px 18px #63fad871; }
+    #status.warn, .toast.warn { color:#feec64; text-shadow:0 2px 7px #1f829b23; }
+    /* ==== GAME LIBRARY LIST ==== */
+    .lib-title-bar {
+      display:flex;align-items:baseline;gap:1.32em;
+      width:100%;max-width:660px;margin:2.2em auto 1.1em auto;
+      padding:0 1.9em 0.2em 0.3em;
+      border-bottom:1.5px solid #35dad453;
+    }
+    .lib-title-bar h2{
+      flex:1; font-weight:700;font-size:1.33rem;color:#d6ebf7;margin:0.11em 0;
+      letter-spacing:.016em;text-shadow:0 3px 9px #217fb960;
+    }
+    .btn-small {
+      padding:0.39em 1.6em;font-size:1em;
+      margin:0.1em 0 0.1em 0.9em;box-shadow:0 1.1px 5px #51fff815;
+      border-radius:8px;background:linear-gradient(90deg,#01e1e1 30%,#39c6ef 189%);
+    }
+    .btn-small:hover{ background:linear-gradient(91deg,#90ffe7 10%,#45dcf4 124%); color:#222;}
+    /* library/game list cards */
+    .lib-list {
+      width: 99vw; max-width: 680px;
+      margin: 0 auto 1.8em auto;
+      display:flex; flex-direction:column; gap:1.9em;
+      min-height:15vh;
+    }
+    .game-card {
+      background:linear-gradient(109deg,#1d2c5f 62%,#234b90 175%);
+      border-radius:16px;
+      box-shadow:0 2.2px 11px #0b458cf3, 0 0.7px 13px #20e9f219;
+      padding: 1.3em 2.2em 1em 1.1em;
+      display:flex;gap:1.15em;align-items:center;position:relative;
+      transition:box-shadow .24s,transform .16s;
+      min-width:0;
+    }
+    .game-card:hover { filter:brightness(1.08); background:linear-gradient(112deg,#213d6e 60%,#27daf6 195%); box-shadow:0 13px 49px #0c1e846b;}
+    .game-thumb {
+      width:53px;height:53px;flex:0 0 auto;
+      background:#2d6274 url('https://upload.wikimedia.org/wikipedia/commons/6/6a/HTML_5_icon.png') no-repeat 45% 56%/45% auto;
+      display:flex;align-items:center;justify-content:center;
+      border-radius:12px;box-shadow:0 2px 8px #39f9f312;
+      overflow:hidden;position:relative;
+      transition:box-shadow .18s;
+    }
+    .game-thumb img {
+      width:100%;height:100%;object-fit:cover;display:block;
+      filter:drop-shadow(0 0 9.6px #ffddee60) saturate(1.2) brightness(1.12);
+      transition:.2s;
+    }
+    .game-meta {
+      flex:1;display:flex;flex-direction:column;min-width:0;
+    }
+    .game-title {
+      font-size:1.18em;font-weight:700;color:#f3ffff;
+      margin-bottom:.1em;text-shadow:0 2px 6px #07f6f771;
+      overflow:hidden;text-overflow:ellipsis; white-space:nowrap;
+    }
+    .game-url {
+      font-size:.95em;color:#a5e7fa;text-decoration:underline dotted #bfedf6;
+      word-break:break-all;
+    }
+    .game-controls {
+      display:flex;gap:0.43em;align-items:center;margin-left:1.1em;
+    }
+    .game-controls .btn-tiny {
+      padding: 0.3em 0.8em;font-size:1.01em; margin:0.1em;background:linear-gradient(99deg,#3ef1ef,#b8ef85 152%);
+      color:#254e75; border-radius:6px;box-shadow:0 1.2px 8px #2cf96814;
+      border:none; cursor:pointer;outline:none; font-weight:700;opacity:.84;
+      transition:background 0.15s, color 0.17s, box-shadow 0.15s;
+    }
+    .game-controls .btn-tiny:hover { background:#aefff1;color:#117186;opacity:1; }
+    /* Drag-and-drop dragover indicator */
+    .drag-overlay {
+      position:fixed;top:0;left:0;right:0;bottom:0;
+      background:rgba(17,121,244,0.37);z-index:9999;
+      display:flex;justify-content:center;align-items:center;
+      color:#fff;font-size:2.2em;font-weight:700;
+      letter-spacing:.05em; pointer-events:none;
+      opacity:0;
+      transition:opacity .15s;
+    }
+    .drag-overlay.active {opacity:1; pointer-events:auto;}
+    /* ==== MODAL DIALOG ==== */
+    .modal {
+      position:fixed;inset:0;z-index:10011;
+      background:rgba(18,19,35,0.83);display:flex;justify-content:center;align-items:center;
+      transition:opacity .17s;
+      opacity:0;pointer-events:none;
+    }
+    .modal.open {opacity:1;pointer-events:all;}
+    .modal-content {
+      background:linear-gradient(118deg,#212c51 61%,#62cffa 143%);
+      border-radius:19px;box-shadow:0 4px 27px #19f9ce1e;
+      padding:2.3em 2.4em 2.35em 2.2em;
+      max-width:420px;min-width:220px;
+      color:#eafafa; text-align:center;
+    }
+    .modal-content h3 {margin-bottom:.7em;}
+    .modal-content .btn { margin-top:1.15em;}
+    /* ==== SETTINGS SECTION ==== */
+    .settings {
+      position:fixed;right:1.1em;top:1.7em;z-index:1122;
+      background:linear-gradient(120deg, #253e6b 71%,#41b7f2 154%);
+      box-shadow:0 1.2px 18px #229ebb28;
+      border-radius:18px;
+      color:#fff;padding:.9em 1.2em;
+      font-size:1.08em;
+      display:flex;gap:1.07em;align-items:center;
+      animation:settingsPop .43s;
+      user-select: none;
+    }
+    @keyframes settingsPop{0%{transform:scale(.84); opacity:.18;} 100%{transform:scale(1); opacity:1;}}
+    .settings label{margin:0;}
+    .settings input[type=checkbox]{
+      accent-color:#4ff5e2;width:1.22em;height:1.22em;border-radius:4px;
+    }
+    /* ==== TOAST ==== */
+    .toast {
+      position:fixed;bottom:70px;left:50%;transform:translateX(-50%);
+      background:linear-gradient(92deg,#19fdfd 30%,#3e91ef 130%);
+      color:#184d5a;padding:.9em 2.3em;border-radius:12px;box-shadow:0 2px 20px #10a9fa35;
+      font-size:1.13em;font-weight:500;letter-spacing:.01em;
+      z-index:11111;
+      opacity:0;pointer-events:none;
+      animation:toast-in .19s;
+      transition:opacity .15s;
+    }
+    .toast.show {opacity:1;pointer-events:auto;}
+    @keyframes toast-in {0%{opacity:0;transform:translateX(-50%) translateY(22px);}100%{opacity:1;}}
+    /* ==== FOOTER ==== */
+    footer {
+      position:fixed;bottom:0;left:0;right:0;
+      background:linear-gradient(85deg,#141f4cfc 61%,#38c3f418 146%);
+      color:#94e6fb;
+      text-align:right;font-size:1.08em;
+      padding:.6em 1.2em .2em 1.1em;
+      letter-spacing:.018em;
+      border-top-left-radius:19px;
+      z-index:111;
+      user-select: none;
+    }
+    footer a{color:#bfffd9;text-decoration:underline dotted #21a1ea 2.5px;}
+    footer a:hover{color:#ebc9fa; text-decoration:underline solid #eb38ec 3px;}
+
+    /* === Scrollbars touch === */
+    ::-webkit-scrollbar{width:7px;background:#1f2653;}
+    ::-webkit-scrollbar-thumb{background:#72d7e055;border-radius:7px;}
+    /* ===== Responsive ===== */
+    @media (max-width:850px){
+      header{padding:2em 0.8em 1em 1.2em;min-width:unset;max-width:99vw;}
+      .lib-title-bar{padding:.2em .7em .18em 0.05em;width:100%;}
+      .lib-list{max-width:100vw;}
+    }
+    @media (max-width:520px){
+      header{font-size:1em;}
+      .card{padding:1.1em .4em .7em .7em;}
+      .lib-list{gap:.7em;}
+    }
+    /* ==== Accessibility ==== */
+    .sr-only { position: absolute;width: 1px;height: 1px;margin: -1px;
+    padding: 0;overflow: hidden;clip: rect(0,0,0,0);border: 0;}
+  </style>
+</head>
+<body>
+  <header>
+    <h1>A-Game Launcher</h1>
+    <p>
+      Download and launch HTML5 games/webpages for offline play.<br>
+      Save your favorite games to your personal library.<br>
+      Import, export, and organize your entire offline collection!
+    </p>
+  </header>
+  <svg class="header-decoration" height="30" width="100%">
+    <defs>
+      <linearGradient id="hglow" x1="0" y1="0" x2="100%" y2="100%">
+        <stop stop-color="#77fff1" stop-opacity="0.13"/><stop offset=".58" stop-color="#6f93ff" stop-opacity="0.14"/><stop offset="1" stop-color="#66ffee" stop-opacity="0.09"/>
+      </linearGradient>
+    </defs>
+    <ellipse cx="50%" cy="15" rx="200" ry="10" fill="url(#hglow)"/>
+  </svg>
+  <main>
+    <section>
+      <form class="card" id="fetchForm" autocomplete="off" spellcheck="false">
+        <label for="urlInput">🌐 Enter website/game URL:</label>
+        <div class="input-wrap">
+          <span class="icon" aria-hidden="true">🔗</span>
+          <input id="urlInput" name="url" type="url" required pattern="https?://.+" autocomplete="off" placeholder="https://example.com/game.html">
+        </div>
+        <div class="button-row">
+          <button type="submit" class="btn" id="fetchBtn">Download & Save HTML</button>
+          <button type="button" class="btn" id="importBtn">⬆ Import HTML</button>
+        </div>
+        <input type="file" id="importFile" accept=".html,.htm,text/html" style="display:none">
+        <span id="status"></span>
+      </form>
+    </section>
+    <section id="libSection">
+      <div class="lib-title-bar">
+        <h2>🎮 My Game Library</h2>
+        <button class="btn-small" id="exportAllBtn">Export All</button>
+        <button class="btn-small" id="clearAllBtn" title="Remove ALL games">Clear All</button>
+      </div>
+      <div class="lib-list" id="libList"><!-- JS fills with cards --></div>
+    </section>
+  </main>
+  <div class="drag-overlay" id="dragOverlay">⬆ Drop HTML file(s) to import</div>
+  <div class="settings" id="settingsPanel" style="display:none">
+    <label>
+      <input type="checkbox" id="showThumbs" checked> Show Thumbnails
+    </label>
+    <label>
+      <input type="checkbox" id="saveOffline" checked> Save to Device (localStorage)
+    </label>
+  </div>
+  <footer>
+    Made for <a href="https://github.com/Darth12345-web" target="_blank">Darth12345-web</a> | Comfortaa Font · Deep Blue
+  </footer>
+  <!-- ==== Modal dialog for confirmations ==== -->
+  <div class="modal" id="modal">
+    <div class="modal-content" id="modalContent" tabindex="-1"></div>
+  </div>
+  <!-- ==== Toast notification ==== -->
+  <div class="toast" id="toast"></div>
+  <script>
+    // ========== Utility functions ==========
+    const $ = s => document.querySelector(s), $$ = s => [...document.querySelectorAll(s)];
+    function sanitizeFilename(url,name) {
+      if(name && /^[a-zA-Z0-9_\-. ]+\.html?$/i.test(name.trim())) return name.trim();
+      try {
+        let u = new URL(url);
+        let f = u.hostname + u.pathname.replace(/[\/\\]/g,'_');
+        f = f.replace(/^_+|_+$/g,''); // strip leading/trailing
+        if(!f.endsWith('.html')) f += ".html";
+        return f.replace(/[^a-zA-Z0-9._\- ]/g,'_').slice(0,60);
+      }catch(e){
+        return 'game.html';
+      }
+    }
+    function randomID(len=9){
+      return ([...crypto.getRandomValues(new Uint8Array(len))].map(n=>("0"+(n%36).toString(36)).slice(-2)).join(""));
+    }
+    function sleep(t){return new Promise(r=>setTimeout(r,t));}
+
+    // ========== Toasts ==========
+    function showToast(msg, type='success', ms=2000){
+      const t=$("#toast");
+      t.textContent=msg;t.className='toast '+type;t.classList.add('show');
+      setTimeout(()=>t.classList.remove('show'),ms);
+    }
+
+    // ========== Modal Dialogs ==========
+    function showModal(html,onOk,onCancel,okTxt="OK",noTxt="Cancel") {
+      const m=$("#modal"), c=$("#modalContent");
+      c.innerHTML=html+'<br><button class="btn" id="modalOk">'+okTxt+'</button><button class="btn" id="modalNo">'+noTxt+'</button>';
+      m.classList.add('open');
+      $("#modalOk").focus();
+      $("#modalOk").onclick=()=>{m.classList.remove('open');if(onOk)onOk();};
+      $("#modalNo").onclick=()=>{m.classList.remove('open');if(onCancel)onCancel();};
+    }
+    function quickModal(msg, type='info', ms=1200) {
+      const m=$("#modal"), c=$("#modalContent");
+      c.innerHTML='<h3>'+msg+'</h3>';
+      m.classList.add('open');
+      setTimeout(()=>m.classList.remove('open'), ms);
+    }
+
+    // ========== localStorage LIBRARY ==========
+    function getLib() {
+      try{
+        return JSON.parse(localStorage['agaem-library-v2']||'[]');
+      }catch{ return []; }
+    }
+    function setLib(lib){
+      localStorage['agaem-library-v2'] = JSON.stringify(lib);
+    }
+    function addLibEntry(ent){
+      let lib = getLib();lib.unshift(ent);setLib(lib);
+    }
+    function updateLibEntry(id,props){
+      let lib = getLib(), idx=lib.findIndex(e=>e.id===id);
+      if(idx>-1) {lib[idx]={...lib[idx],...props};setLib(lib);}
+    }
+    function removeLibEntry(id) {
+      let lib = getLib();lib = lib.filter(e=>e.id!==id);setLib(lib);
+    }
+    function wipeLibrary() {
+      localStorage.removeItem('agaem-library-v2');
+    }
+
+    // ========== Fetch and Save HTML ==========
+    async function fetchSiteHTML(url) {
+      if(!/^https?:\/\//.test(url)) throw Error("URL must start with http(s)://");
+      // try both fetch, then fallback to CORS proxy
+      let resp;
+      try {
+        resp = await fetch(url,{mode:'cors'});
+        if(!resp.ok) throw Error(`HTTP ${resp.status}`);
+        if(resp.headers.get('content-type') && !resp.headers.get('content-type').includes('text/html'))
+          throw Error("Response is not HTML");
+        return {html:await resp.text(), source:url};
+      } catch(er){
+        // If failure is CORS or block, use AllOrigins proxy as fallback
+        showToast("Trying CORS proxy...",'warn',1500);
+        resp = await fetch('https://api.allorigins.win/raw?url='+encodeURIComponent(url));
+        if(!resp.ok) throw Error("CORS proxy also failed.");
+        return {html:await resp.text(), source:url};
+      }
+    }
+    // ========== Save as File ==========
+    function saveAsFile(blob, filename) {
+      const a=document.createElement('a');
+      a.href=URL.createObjectURL(blob); a.download=filename;
+      document.body.appendChild(a); a.click();
+      setTimeout(()=>URL.revokeObjectURL(a.href),5000);
+      a.remove();
+    }
+
+    // ========== Thumbnails ==========
+    function getThumbFavicon(url) {
+      try {
+        let u = new URL(url);
+        return u.origin+"/favicon.ico";
+      } catch { return "https://upload.wikimedia.org/wikipedia/commons/6/6a/HTML_5_icon.png"; }
+    }
+    // Try to create a live thumbnail using an iframe screenshot (modern browsers only)
+    async function generateThumb(html) {
+      // In demo, skip heavy html2canvas for performance, just use icon.
+      return "https://upload.wikimedia.org/wikipedia/commons/6/6a/HTML_5_icon.png";
+    }
+
+    // ========== Render the library ==========
+    async function refreshLib(showThumbs=true) {
+      const list = $("#libList");
+      list.innerHTML='';
+      let entries=getLib();
+      if(!entries.length){
+        list.innerHTML='<div style="color:#9cc2f3;text-align:center;margin:2em 0 3em 0;">No games/pages saved yet.<br>Try downloading or importing one 👾</div>';
+        return;
+      }
+      for(const ent of entries){
+        // Thumb
+        let thumbEl=document.createElement('div'); thumbEl.className="game-thumb";
+        let img=document.createElement('img');
+        img.alt='icon'; img.src=(showThumbs && ent.thumbnail)?ent.thumbnail:getThumbFavicon(ent.url);
+        thumbEl.appendChild(img);
+        // Meta
+        let meta=document.createElement('div');meta.className="game-meta";
+        let title=document.createElement('div'); title.className="game-title";
+        title.textContent=ent.title||ent.filename;
+        let urlTag=document.createElement('div'); urlTag.className="game-url"; urlTag.textContent=ent.url;
+        meta.append(title, urlTag);
+
+        // Controls
+        let ctrl=document.createElement('div');ctrl.className="game-controls";
+        // Open in new tab (datauri or blob)
+        const openBtn=document.createElement('button');openBtn.className="btn-tiny";openBtn.textContent='▶ Play';
+        openBtn.onclick=()=>openGame(ent);
+        ctrl.append(openBtn);
+        // Download
+        const dlBtn=document.createElement('button');dlBtn.className="btn-tiny";dlBtn.textContent='⬇ Export';
+        dlBtn.onclick=()=>saveAsFile(new Blob([ent.html],{type:'text/html'}), ent.filename||"export.html");
+        ctrl.append(dlBtn);
+        // Edit
+        const editBtn=document.createElement('button');editBtn.className="btn-tiny";editBtn.textContent='✏ Edit';
+        editBtn.onclick=()=>editEntry(ent.id);
+        ctrl.append(editBtn);
+        // Delete
+        const delBtn=document.createElement('button');delBtn.className="btn-tiny";delBtn.textContent='🗑';
+        delBtn.onclick=()=>deleteEntry(ent.id);
+        ctrl.append(delBtn);
+
+        // Card
+        let card=document.createElement('div');card.className="game-card";
+        card.append(thumbEl,meta,ctrl);
+        list.append(card);
+      }
+    }
+    // ========== Edit entry ==========
+    function editEntry(id){
+      const ent=getLib().find(e=>e.id===id);
+      if(!ent) return;
+      showModal(
+        `<h3>Edit Game/Page</h3>
+         <label>Name:<br><input type="text" id="editTitle" value="${ent.title||''}" style="font-size:1em;width:80%"></label>
+         <label>URL:<br><input type="text" id="editUrl" value="${ent.url||''}" style="font-size:.96em;width:85%"></label>
+         <label>Filename:<br><input type="text" id="editFn" value="${ent.filename||''}" style="font-size:.93em;width:70%"></label>`,
+      ()=>{
+        updateLibEntry(id,{
+          title:$("#editTitle").value.trim(),
+          url:$("#editUrl").value.trim(),
+          filename:$("#editFn").value.trim()
+        });
+        refreshLib($("#showThumbs").checked);
+        showToast("Saved changes","success");
+      },null,"Save","Cancel");
+    }
+    // ========== Open Game ==========
+    function openGame(ent){
+      // For modern blob URLs: open in new tab for offline play!
+      let blob = new Blob([ent.html],{type:"text/html"});
+      let url=URL.createObjectURL(blob);
+      window.open(url,'_blank');
+      setTimeout(()=>URL.revokeObjectURL(url),20000); // revoke after 20s
+    }
+
+    // ========== Delete ==========
+    function deleteEntry(id){
+      showModal("<h3>Remove game from library?</h3>","",()=>{
+        removeLibEntry(id);
+        refreshLib($("#showThumbs").checked);
+        showToast("Removed",'success');
+      });
+    }
+
+    // ========== Export All ==========
+    $("#exportAllBtn").onclick=()=>{
+      let arr=getLib();
+      if(!arr.length) return showToast("No games to export","warn");
+      let filename="agaem-library-"+(new Date).toISOString().slice(0,10)+".json";
+      let blob=new Blob([JSON.stringify(arr,null,1)],{type:"application/json"});
+      saveAsFile(blob,filename);
+      showToast("Exported!");
+    };
+    // ========== Clear All ==========
+    $("#clearAllBtn").onclick=()=>{
+      showModal("<h3>Really erase the entire library?</h3>All saved games will be lost.","",()=>{
+        wipeLibrary();
+        refreshLib();
+        showToast("Library cleared.","success");
+      });
+    };
+
+    // ========== Import feature ==========
+    $("#importBtn").onclick=()=> $("#importFile").click();
+    $("#importFile").onchange=e=>{
+      let f=e.target.files[0];
+      if(!f) return;
+      let reader=new FileReader();
+      reader.onload=()=>{
+        let text=reader.result;
+        // If it's JSON, bulk import
+        try{
+          let obj=JSON.parse(text);
+          if(Array.isArray(obj) && "html" in obj[0]){
+            obj.forEach(ent=>addLibEntry({...ent, id:randomID()}));
+            showToast("Imported "+obj.length+" games (JSON).");
+            refreshLib($("#showThumbs").checked); return;
+          }
+        }catch{}
+        // Else if HTML, add as one-page-game
+        addLibEntry({
+          id:randomID(),
+          title:"Imported Game",
+          url:"file", filename:f.name,
+          html:text,
+          thumbnail:"https://upload.wikimedia.org/wikipedia/commons/6/6a/HTML_5_icon.png"
+        });
+        showToast("Game imported.","success");
+        refreshLib($("#showThumbs").checked);
+      }; reader.readAsText(f);
+      // reset input
+      e.target.value="";
+    };
+    // ========== Drag-and-Drop File Import ==========
+    const dragOver = e => {e.preventDefault(); $("#dragOverlay").classList.add("active");};
+    const dragLeave = e => {e.preventDefault(); $("#dragOverlay").classList.remove("active");};
+    const dropFile = e => {
+      e.preventDefault();
+      $("#dragOverlay").classList.remove("active");
+      let files=[...e.dataTransfer.files];
+      if(!files.length) return;
+      let count=0;
+      files.forEach(f=>{
+        if(!/\.html?$/i.test(f.name)) return;
+        let reader=new FileReader();
+        reader.onload=()=>{
+          addLibEntry({
+            id: randomID(),
+            title: f.name,
+            url: "file",
+            filename: f.name,
+            html: reader.result,
+            thumbnail:"https://upload.wikimedia.org/wikipedia/commons/6/6a/HTML_5_icon.png"
+          });
+          count++;
+          if(count===files.length) {
+            showToast("Imported "+count+" file(s)");
+            refreshLib($("#showThumbs").checked);
+          }
+        };
+        reader.readAsText(f);
+      });
+    };
+    window.addEventListener('dragover',dragOver,false);
+    window.addEventListener('dragleave',dragLeave,false);
+    window.addEventListener('drop',dropFile,false);
+
+
+    // ========== Settings (show images/offline save) ==========
+    // quick hack to show/hide: press S key
+    document.addEventListener('keydown',e=>{
+      if(e.key==="S"||e.key==="s"){
+        let p=$("#settingsPanel");
+        p.style.display = (p.style.display=="none")?"":"none";
+      }
+    });
+    $("#showThumbs").onchange=()=>refreshLib($("#showThumbs").checked);
+
+    // ========== Main Launcher Form submission ==========
+    $("#fetchForm").onsubmit= async ev=>{
+      ev.preventDefault();
+      $("#fetchBtn").disabled=true;
+      $("#status").textContent="Fetching site...";
+      let url=$("#urlInput").value.trim();
+      let fn=sanitizeFilename(url);
+      try{
+        let {html, source}=await fetchSiteHTML(url);
+        // Ask/name:
+        let title=(html.match(/<title>([^<]*)<\/title>/i)||[])[1]||"A-Game HTML";
+        // Save game locally
+        let thumb = getThumbFavicon(url);
+        addLibEntry({
+          id: randomID(),
+          title, url, filename: fn, html, thumbnail: thumb
+        });
+        refreshLib($("#showThumbs").checked);
+        $("#status").textContent="Saved! You can play or export from your library.";
+        $("#status").className="success";
+        showToast("Game saved!");
+      }catch(er){
+        $("#status").textContent="Failed: "+er;
+        $("#status").className="error";
+        showToast("Could not fetch HTML.","error",2600);
+      }
+      $("#fetchBtn").disabled=false;
+    }
+
+    // ========== On Load: show library ==========
+    window.onload=()=>{
+      refreshLib();
+      $("#showThumbs").checked=true;
+      $("#settingsPanel").style.display="none";
+    };
+  </script>
+</body>
+</html>
